@@ -14,6 +14,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const AuditHistoryScreen = () => {
   const { role, auditData, setAuditData } = roleBase();
+  // delete history if role is admin access this part
   const deleteHistoryAudit = async args => {
     Alert.alert('delete History', 'Are you sure you want to delete?', [
       { text: 'Cancel' },
@@ -24,6 +25,7 @@ const AuditHistoryScreen = () => {
           setAuditData(updated);
 
           try {
+            // store audit store data 
             await AsyncStorage.setItem('auditStore', JSON.stringify(updated));
           } catch (e) {
             console.error('invalid audit id:', e);
@@ -35,15 +37,19 @@ const AuditHistoryScreen = () => {
 
   return (
     <View style={styles.container}>
+      {/* condition base show header */}
       <Text style={[styles.mainTitle]}>
         {role === 'Admin' ? 'Admin' : 'Audit'}
       </Text>
 
       <Text style={styles.title}>Audit History</Text>
+      {/* flatlist use list of audit history */}
+      {/* ListEmptyComponent if is empty show message no history found */}
       <FlatList
         data={auditData}
         keyExtractor={item => item.id.toString()}
         ListEmptyComponent={
+          
           <Text
             style={{
               marginLeft: 20,

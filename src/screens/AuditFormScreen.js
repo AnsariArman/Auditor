@@ -20,16 +20,18 @@ const AuditFormScreen = ({ navigation }) => {
   const [selectToggle1, setSelectToggle1] = useState(false);
   const [selectToggle2, setSelectToggle2] = useState(false);
   const [auditorComment, setAuditorComment] = useState('');
-
+// next step 
   const handleStepNext = () => setStepAudit(prev => prev + 1);
+  // previous step
   const handleStepPreview = () => setStepAudit(prev => prev - 1);
 
+  // complete form button
   const submitButton = () => {
     if (!ratingAuditor) {
       Alert.alert('message', 'Please enter rating 1 to 5 before submit');
       return;
     }
-
+//  merge required details
     const auditDetails = {
       id: Date.now(),
       ratingAuditor,
@@ -37,7 +39,7 @@ const AuditFormScreen = ({ navigation }) => {
       auditorComment,
       timestamp: new Date().toLocaleString(),
     };
-
+// history update
     const updateAuditHistory = [auditDetails, ...auditData];
     setAuditData(updateAuditHistory);
     navigation.navigate('AuditSummaryScreen', { auditData: auditDetails });
@@ -46,10 +48,10 @@ const AuditFormScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <Text style={[styles.mainTitle]}>Audit Form</Text>
-
+{/*  step1 audit  */}
       {stepAudit === 1 && (
         <>
-          <Text style={styles.step}>Step 1: Enter ratingAuditor (1 to 5)</Text>
+          <Text style={styles.step}>Step 1: Enter ratingAuditor</Text>
           <TextInput
             value={ratingAuditor}
             placeholder="enter here rating"
@@ -64,6 +66,8 @@ const AuditFormScreen = ({ navigation }) => {
           </TouchableOpacity>
         </>
       )}
+      {/*  step2 audit  */}
+
       {stepAudit === 2 && (
         <>
           <Text style={styles.step}>Step 2: Select audit </Text>
@@ -83,6 +87,7 @@ const AuditFormScreen = ({ navigation }) => {
           </TouchableOpacity>
         </>
       )}
+      {/* step 3 audit */}
       {stepAudit === 3 && (
         <>
           <Text style={styles.step}>Step 3: please enter Comments</Text>

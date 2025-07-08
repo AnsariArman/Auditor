@@ -7,6 +7,7 @@ const AuditSummaryScreen = ({ route, navigation }) => {
 
   return (
     <View style={styles.container}>
+      {/* form review before submit */}
       <Text style={styles.title}>Audit Submitted by Auditor</Text>
       <Text>Rating: {auditData?.ratingAuditor}</Text>
       <Text>

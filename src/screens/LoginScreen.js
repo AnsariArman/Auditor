@@ -17,9 +17,11 @@ const LoginScreen = ({ navigation }) => {
 
   return (
     <>
+    {/* header of screen */}
       <Text style={[styles.mainTitle]}>Login </Text>
 
       <View style={styles.container}>
+        {/* role bases */}
         <Text style={styles.header}>Please Select Role:</Text>
         <TouchableOpacity onPress={() => selectAuditRole('Admin')}>
           <Text style={styles.select}>Admin</Text>

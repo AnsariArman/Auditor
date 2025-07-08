@@ -4,22 +4,22 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import LoginScreen from './src/screens/LoginScreen';
 import AuditFormScreen from './src/screens/AuditFormScreen';
 import AuditSummaryScreen from './src/screens/AuditSummaryScreen';
+import { ContextProvider } from './src/RoleProvider/useContextProvider';
 import AuditHistoryScreen from './src/screens/AuditHistoryScreen';
 import PolicyViewerScreen from './src/screens/PolicyViewerScreen';
-import { ContextProvider } from './src/RoleProvider/useContextProvider';
 // navigation between use
 const Stack = createNativeStackNavigator();
 //  all screen define
 export default function App() {
   return (
     <ContextProvider> 
-      <NavigationContainer>
-        <Stack.Navigator>
-          <Stack.Screen name="Login" component={LoginScreen} />
-          <Stack.Screen name="AuditForm" component={AuditFormScreen} />
-          <Stack.Screen name="Summary" component={AuditSummaryScreen} />
-          <Stack.Screen name="History" component={AuditHistoryScreen} />
-          <Stack.Screen name="Policy" component={PolicyViewerScreen} />
+      <NavigationContainer >
+        <Stack.Navigator    screenOptions={{headerShown: false}} initialRouteName='LoginScreen'>
+          <Stack.Screen name="LoginScreen" component={LoginScreen} />
+          <Stack.Screen name="AuditFormScreen" component={AuditFormScreen} />
+          <Stack.Screen name="AuditSummaryScreen" component={AuditSummaryScreen} />
+          <Stack.Screen name="AuditHistoryScreen" component={AuditHistoryScreen} />
+          <Stack.Screen name="PolicyViewerScreen" component={PolicyViewerScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </ContextProvider>

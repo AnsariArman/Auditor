@@ -22,6 +22,7 @@ if user select role as Auditor
 auditor step 1 define rating 
 step 2 check box on  and off as par requirments
 step 3 comments by auditor and capture image 
+before capture image add AndroidManifest file Permission for camera
 Auditor can fill form ,review form and submit
 
 if user select role as Viewer

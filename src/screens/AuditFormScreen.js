@@ -1,4 +1,3 @@
-// src/screens/AuditFormScreen.js
 import React, { useState } from 'react';
 import {
   View,
@@ -9,18 +8,88 @@ import {
   Switch,
   Alert,
   TouchableOpacity,
+  Platform,
+  PermissionsAndroid,
+  Linking,
 } from 'react-native';
+import { launchCamera } from 'react-native-image-picker';
+import { Image } from 'react-native';
 import { roleBase } from '../RoleProvider/useContextProvider';
 
 const AuditFormScreen = ({ navigation }) => {
   const { auditData, setAuditData } = roleBase();
+  const [auditImage, setAuditImage] = useState(null);
 
   const [stepAudit, setStepAudit] = useState(1);
   const [ratingAuditor, setRatingAuditor] = useState('');
   const [selectToggle1, setSelectToggle1] = useState(false);
   const [selectToggle2, setSelectToggle2] = useState(false);
   const [auditorComment, setAuditorComment] = useState('');
-// next step 
+
+  // 1.Permission android camera
+  const requestCameraPermission = async () => {
+    if (Platform.OS === 'android') {
+      try {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.CAMERA,
+          {
+            title: 'Camera Permission Required',
+            message: 'We need camera access to take pictures.',
+            buttonPositive: 'Allow',
+            buttonNegative: 'Cancel',
+          },
+        );
+
+        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+          return true;
+        } else {
+          Alert.alert(
+            'Permission Denied',
+            'Camera permission is required for this feature. Please enable it in settings.',
+            [
+              {
+                text: 'Open Settings',
+                onPress: () => Linking.openSettings(),
+              },
+              { text: 'OK' },
+            ],
+            { cancelable: false },
+          );
+          return false;
+        }
+      } catch (err) {
+        console.warn(err);
+        return false;
+      }
+    }
+    // On iOS or default allow
+    return true;
+  };
+
+  //  capture Image
+  const handleAuditImageCapture = async () => {
+    // Request permission only on Android if true camera capture
+    const hasPermission = await requestCameraPermission();
+    if (!hasPermission) return;
+
+    launchCamera(
+      {
+        mediaType: 'photo',
+        quality: 0.8,
+        includeBase64: true,
+      },
+      response => {
+        if (response.didCancel) return;
+        if (response.errorCode) {
+          Alert.alert('Error Camera', response.errorMessage);
+          return;
+        }
+        const img = response.assets?.[0];
+        if (img?.uri) setAuditImage(img.uri);
+      },
+    );
+  };
+  // next step
   const handleStepNext = () => setStepAudit(prev => prev + 1);
   // previous step
   const handleStepPreview = () => setStepAudit(prev => prev - 1);
@@ -31,24 +100,25 @@ const AuditFormScreen = ({ navigation }) => {
       Alert.alert('message', 'Please enter rating 1 to 5 before submit');
       return;
     }
-//  merge required details
+    //  merge required details
     const auditDetails = {
       id: Date.now(),
       ratingAuditor,
       checks: [selectToggle1, selectToggle2],
       auditorComment,
+      auditImage,
       timestamp: new Date().toLocaleString(),
     };
-// history update
+    // history update
     const updateAuditHistory = [auditDetails, ...auditData];
     setAuditData(updateAuditHistory);
-    navigation.navigate('AuditSummaryScreen', { auditData: auditDetails });
+    navigation.replace('AuditSummaryScreen', { auditData: auditDetails });
   };
 
   return (
     <View style={styles.container}>
       <Text style={[styles.mainTitle]}>Audit Form</Text>
-{/*  step1 audit  */}
+      {/*  step1 audit  */}
       {stepAudit === 1 && (
         <>
           <Text style={styles.step}>Step 1: Enter ratingAuditor</Text>
@@ -61,8 +131,18 @@ const AuditFormScreen = ({ navigation }) => {
             maxLength={1}
           />
 
-          <TouchableOpacity disabled={ratingAuditor?false:true} onPress={handleStepNext}>
-            <Text style={[styles.select,{backgroundColor:ratingAuditor? '#32656A':'#747474'}]}>Next</Text>
+          <TouchableOpacity
+            disabled={ratingAuditor ? false : true}
+            onPress={handleStepNext}
+          >
+            <Text
+              style={[
+                styles.select,
+                { backgroundColor: ratingAuditor ? '#32656A' : '#747474' },
+              ]}
+            >
+              Next
+            </Text>
           </TouchableOpacity>
         </>
       )}
@@ -79,33 +159,53 @@ const AuditFormScreen = ({ navigation }) => {
             <Text>auditCheck2</Text>
             <Switch value={selectToggle2} onValueChange={setSelectToggle2} />
           </View>
-          <TouchableOpacity onPress={handleStepPreview}>
-            <Text style={[styles.select]}>Back</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={handleStepNext}>
-            <Text style={[styles.select]}>Next</Text>
-          </TouchableOpacity>
+          <View style={styles.rows}>
+            <TouchableOpacity onPress={handleStepPreview}>
+              <Text style={[styles.select]}>Back</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={handleStepNext}>
+              <Text style={[styles.select]}>Next</Text>
+            </TouchableOpacity>
+          </View>
         </>
       )}
       {/* step 3 audit */}
       {stepAudit === 3 && (
         <>
-          <Text style={styles.step}>Step 3: please enter Comments</Text>
+          <Text style={styles.step}>
+            Step 3: please enter Comments and Image
+          </Text>
           <TextInput
             value={auditorComment}
             onChangeText={setAuditorComment}
             placeholder="Write comment here auditor..."
             multiline
             numberOfLines={4}
-            style={[styles.input, { height: 100 }]}
+            style={[styles.input, { height: 70 }]}
           />
-           <TouchableOpacity onPress={handleStepPreview}>
+          <TouchableOpacity onPress={handleAuditImageCapture}>
+            <Text style={[styles.select]}>Capture Image</Text>
+          </TouchableOpacity>
+          {auditImage && (
+            <Image
+              source={{ uri: auditImage }}
+              style={{
+                width: 150,
+                height: 150,
+                alignSelf: 'center',
+                marginTop: 10,
+                borderRadius: 10,
+              }}
+            />
+          )}
+            <View style={styles.rows}>
+          <TouchableOpacity onPress={handleStepPreview}>
             <Text style={[styles.select]}>Back</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={submitButton}>
             <Text style={[styles.select]}>Submit</Text>
           </TouchableOpacity>
-          
+          </View>
         </>
       )}
     </View>
@@ -152,6 +252,10 @@ const styles = StyleSheet.create({
     marginTop: 100,
     marginHorizontal: 20,
   },
+  rows: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
   select: {
     backgroundColor: '#32656A',
     color: '#ffffff',
@@ -161,6 +265,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 30,
     marginHorizontal: 20,
+    paddingHorizontal: 40,
   },
 });
 

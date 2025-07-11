@@ -8,6 +8,7 @@ import {
   StyleSheet,
   Alert,
   TouchableOpacity,
+  Image,
 } from 'react-native';
 import { roleBase } from '../RoleProvider/useContextProvider';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -25,7 +26,7 @@ const AuditHistoryScreen = () => {
           setAuditData(updated);
 
           try {
-            // store audit store data 
+            // store audit store data
             await AsyncStorage.setItem('auditStore', JSON.stringify(updated));
           } catch (e) {
             console.error('invalid audit id:', e);
@@ -49,7 +50,6 @@ const AuditHistoryScreen = () => {
         data={auditData}
         keyExtractor={item => item.id.toString()}
         ListEmptyComponent={
-          
           <Text
             style={{
               marginLeft: 20,
@@ -94,6 +94,12 @@ const AuditHistoryScreen = () => {
             >
               Date and Time: {item.timestamp}
             </Text>
+            {item.auditImage && (
+              <Image
+                source={{ uri: item.auditImage }}
+                style={{ width: 100, height: 100, margin: 10, borderRadius: 8 }}
+              />
+            )}
             {role === 'Admin' && (
               <TouchableOpacity onPress={() => deleteHistoryAudit(item.id)}>
                 <Text style={[styles.select]}>Delete</Text>

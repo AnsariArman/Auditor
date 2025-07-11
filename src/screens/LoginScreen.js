@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { roleBase } from '../RoleProvider/useContextProvider';
-import { View, Text, Button, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, Button, StyleSheet, TouchableOpacity, PermissionsAndroid, Platform } from 'react-native';
 
 const LoginScreen = ({ navigation }) => {
   const { setRole } = roleBase();
@@ -14,7 +14,35 @@ const LoginScreen = ({ navigation }) => {
       navigation.navigate('AuditHistoryScreen');
     }
   };
+ useEffect(() => {
+  const  requestCameraPermission = async() =>{
+  if (Platform.OS === 'android') {
+    const granted = await PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.CAMERA,
+    );
 
+    if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+      return true;
+    } else {
+      Alert.alert(
+        'Permission Denied',
+        'Camera permission is required for this app to function. Please go to settings and enable it.',
+        [
+          {
+            text: 'Open Settings',
+            onPress: () => {
+              Linking.openURL('app-settings:');
+            },
+          },
+          {text: 'OK'},
+        ],
+        {cancelable: false},
+      );
+      return false;
+    }
+  }}
+  requestCameraPermission()
+  }, []);
   return (
     <>
     {/* header of screen */}
